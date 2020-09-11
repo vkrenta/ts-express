@@ -3,11 +3,6 @@ import { RequestHandler } from 'express';
 type resultType = { code: number; body: any };
 type handlerType = (result: resultType) => any;
 type middlewareType = (handler: handlerType) => RequestHandler;
-type endType = {
-  (cb?: (() => void) | undefined): void;
-  (chunk: any, cb?: (() => void) | undefined): void;
-  (chunk: any, encoding: BufferEncoding, cb?: (() => void) | undefined): void;
-};
 
 const responseMiddleware: middlewareType = (handler) => (req, res, next) => {
   const send = res.send;
@@ -27,7 +22,6 @@ const responseMiddleware: middlewareType = (handler) => (req, res, next) => {
     result.code = code;
     return status.call(this, code);
   };
-
   let end = res.end;
 
   (<any>res.end) = function (
@@ -35,6 +29,8 @@ const responseMiddleware: middlewareType = (handler) => (req, res, next) => {
     encoding: BufferEncoding,
     cb?: (() => void) | undefined
   ) {
+    result.code = res.statusCode;
+    if (result.code === 404) result.body = `Cannot ${req.method} ${req.url}`;
     handler(result);
     return end.call(res, chunk, encoding, cb);
   };

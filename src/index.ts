@@ -35,8 +35,8 @@ app.use(
 
 app.use('/', pc.controllerRouter!);
 
-app.use((req, res, next) => {
-  res.status(404).send(`{ message: 'content not found ' + req.url }`);
-});
+// app.use((req, res, next) => {
+//   res.status(404).send(`{ message: 'content not found ' + req.url }`);
+// });
 
 app.listen(8000, () => console.log('running 800'));
