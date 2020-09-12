@@ -1,10 +1,18 @@
-import { Application, ErrorRequestHandler, RequestHandler, Router } from 'express';
+import {
+  Application,
+  ErrorRequestHandler,
+  RequestHandler,
+  Router,
+} from 'express';
 import { Server } from 'http';
 
 export abstract class ControllerType {
   public controllerRouter?: Router;
   public methodRouters?: Map<string, Router>;
   public preResponseHandler?: (result: any) => any;
+  public parametersMap?: {
+    [key: string]: Field[];
+  };
 }
 
 export type Method = 'get' | 'post' | 'put' | 'patch' | 'delete';
@@ -19,7 +27,13 @@ export type ApplicationDecoratorType = {
   after: (RequestHandler | ErrorRequestHandler)[];
 };
 
-export type listenHandler = ({ port, error }: { port?: number; error?: any }) => any;
+export type listenHandler = ({
+  port,
+  error,
+}: {
+  port?: number;
+  error?: any;
+}) => any;
 
 export abstract class ApplicationType {
   public rootRouter?: Router;
@@ -39,3 +53,11 @@ export abstract class ApplicationType {
       .catch((error) => handler?.call(handler, { error }));
   }
 }
+
+export type Field =
+  | 'body'
+  | 'query'
+  | 'params'
+  | 'cookies'
+  | 'signedCookies'
+  | 'req';

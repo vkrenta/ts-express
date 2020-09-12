@@ -6,6 +6,7 @@ import {
   trimSlash,
   ApplicationDecoratorType,
   ApplicationType,
+  Field,
 } from './types';
 
 function methodFucntion(method: Method) {
@@ -27,14 +28,26 @@ function methodFucntion(method: Method) {
 
       path = trimSlash(path);
       const router = target.methodRouters.get(functionName)!;
+
       const handler: RequestHandler = (req, res, next) => {
+        const args = target.parametersMap?.[functionName].map((field) => {
+          switch (field) {
+            case 'req':
+              return req;
+            default:
+              return req[field];
+          }
+        });
         try {
-          const result = (<any>target)[functionName]();
+          const result = args
+            ? (<any>target)[functionName](...args)
+            : (<any>target)[functionName]();
           res.send(result);
         } catch (error) {
           next(error);
         }
       };
+
       router[method](path, ...middlewares, handler);
     };
   };
@@ -80,3 +93,19 @@ export function InitApp({ before, routes, after }: ApplicationDecoratorType) {
     target.app?.use('/', target.rootRouter!);
   };
 }
+
+function parametersFunction(field: Field) {
+  return (target: ControllerType, methodName: string, index: number) => {
+    if (!target.parametersMap) target.parametersMap = {};
+    if (!target.parametersMap[methodName])
+      target.parametersMap[methodName] = [];
+    target.parametersMap[methodName][index] = field;
+  };
+}
+
+export const Body = parametersFunction('body');
+export const Query = parametersFunction('query');
+export const Params = parametersFunction('params');
+export const Cookies = parametersFunction('cookies');
+export const SignedCookies = parametersFunction('signedCookies');
+export const Req = parametersFunction('req');
