@@ -1,4 +1,4 @@
-import express, { Router, RequestHandler } from 'express';
+import express, { Router, RequestHandler, ErrorRequestHandler } from 'express';
 import { createServer } from 'http';
 import {
   Method,
@@ -9,7 +9,10 @@ import {
 } from './types';
 
 function methodFucntion(method: Method) {
-  return function (path: string = '') {
+  return function (
+    path: string = '',
+    ...middlewares: (RequestHandler | ErrorRequestHandler)[]
+  ) {
     return function (
       target: ControllerType,
       functionName: string,
@@ -32,7 +35,7 @@ function methodFucntion(method: Method) {
           next(error);
         }
       };
-      router[method](path, handler);
+      router[method](path, ...middlewares, handler);
     };
   };
 }
@@ -44,12 +47,15 @@ export const Patch = methodFucntion('patch');
 export const Delete = methodFucntion('delete');
 
 export function Controller(path: string = '') {
-  return function (constructor: Function) {
+  return function (
+    constructor: Function,
+    ...middlewares: (RequestHandler | ErrorRequestHandler)[]
+  ) {
     const target = <ControllerType>constructor.prototype;
     path = trimSlash(path);
     target.controllerRouter = Router();
     target.methodRouters?.forEach((router) => {
-      target.controllerRouter?.use(path, router);
+      target.controllerRouter?.use(path, ...middlewares, router);
     });
   };
 }
