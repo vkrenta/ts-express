@@ -1,8 +1,12 @@
-import { Router, RequestHandler } from 'express';
-import { Method, ControllerType } from './types';
-import logger from './logger';
-
-const trimSlash = (str: string) => '/' + str.replace(/^\/+|\/+$/g, '');
+import express, { Router, RequestHandler } from 'express';
+import { createServer } from 'http';
+import {
+  Method,
+  ControllerType,
+  trimSlash,
+  ApplicationDecoratorType,
+  ApplicationType,
+} from './types';
 
 function methodFucntion(method: Method) {
   return function (path: string = '') {
@@ -47,5 +51,26 @@ export function Controller(path: string = '') {
     target.methodRouters?.forEach((router) => {
       target.controllerRouter?.use(path, router);
     });
+  };
+}
+
+export function InitApp({ before, routes, after }: ApplicationDecoratorType) {
+  return function (constructor: Function) {
+    const target: ApplicationType = constructor.prototype;
+    if (!target.app) target.app = express();
+    if (!target.server) target.server = createServer(target.app);
+    if (!target.rootRouter) target.rootRouter = Router();
+    before.forEach((middleware) => {
+      target.app?.use(middleware);
+    });
+    Object.keys(routes).forEach((path) => {
+      routes[path].forEach((controller) => {
+        target.rootRouter?.use(trimSlash(path), controller.controllerRouter!);
+      });
+    });
+    after.forEach((middleware) => {
+      target.app?.use(middleware);
+    });
+    target.app?.use('/', target.rootRouter!);
   };
 }

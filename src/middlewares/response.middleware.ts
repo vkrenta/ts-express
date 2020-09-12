@@ -30,7 +30,9 @@ const responseMiddleware: middlewareType = (handler) => (req, res, next) => {
     cb?: (() => void) | undefined
   ) {
     result.code = res.statusCode;
-    if (result.code === 404) result.body = `Cannot ${req.method} ${req.url}`;
+    if (result.code === 404 ?? !called)
+      result.body = `Cannot ${req.method} ${req.url}`;
+    if (result.code === 500 ?? !called) result.body = `Internal server error`;
     handler(result);
     return end.call(res, chunk, encoding, cb);
   };
