@@ -30,10 +30,24 @@ function methodFucntion(method: Method) {
       const router = target.methodRouters.get(functionName)!;
 
       const handler: RequestHandler = (req, res, next) => {
+        let statusCode: number = 200;
+        let sendMethod: 'sendFile' | 'redirect' | 'send' | 'end' = 'send';
         const args = target.parametersMap?.[functionName].map((field) => {
           switch (field) {
             case 'req':
               return req;
+            case 'status':
+              return (code: number) => {
+                statusCode = code;
+              };
+            case 'redirect':
+              return () => {
+                sendMethod = 'redirect';
+              };
+            case 'file':
+              return () => {
+                sendMethod = 'sendFile';
+              };
             default:
               return req[field];
           }
@@ -42,7 +56,7 @@ function methodFucntion(method: Method) {
           const result = args
             ? (<any>target)[functionName](...args)
             : (<any>target)[functionName]();
-          res.send(result);
+          res.status(statusCode)[sendMethod](result);
         } catch (error) {
           next(error);
         }
@@ -109,3 +123,6 @@ export const Params = parametersFunction('params');
 export const Cookies = parametersFunction('cookies');
 export const SignedCookies = parametersFunction('signedCookies');
 export const Req = parametersFunction('req');
+export const Status = parametersFunction('status');
+export const Redirect = parametersFunction('redirect');
+export const SendFile = parametersFunction('file');

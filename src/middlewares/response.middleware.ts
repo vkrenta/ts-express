@@ -2,7 +2,9 @@ import { RequestHandler } from 'express';
 
 type resultType = { code: number; body: any };
 type handlerType = (result: resultType) => any;
-type middlewareType = (handler: handlerType) => RequestHandler;
+type middlewareType = (
+  handler: (result: { code: number; body: any }) => any
+) => RequestHandler;
 
 const responseMiddleware: middlewareType = (handler) => (req, res, next) => {
   const send = res.send;
@@ -30,9 +32,9 @@ const responseMiddleware: middlewareType = (handler) => (req, res, next) => {
     cb?: (() => void) | undefined
   ) {
     result.code = res.statusCode;
-    if (result.code === 404 ?? !called)
+    if (result.code === 404 && !called)
       result.body = `Cannot ${req.method} ${req.url}`;
-    if (result.code === 500 ?? !called) result.body = `Internal server error`;
+    if (result.code === 500 && !called) result.body = `Internal server error`;
     handler(result);
     return end.call(res, chunk, encoding, cb);
   };

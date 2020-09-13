@@ -40,7 +40,9 @@ export abstract class ApplicationType {
   public app?: Application;
   public server?: Server;
   constructor(private port: number) {}
-  public listen(handler?: listenHandler) {
+  public listen(
+    handler?: ({ port, error }: { port?: number; error?: any }) => any
+  ) {
     return new Promise((resolve, reject) => {
       if (this.app) resolve(this.port);
       else reject('Application must be inited');
@@ -60,4 +62,7 @@ export type Field =
   | 'params'
   | 'cookies'
   | 'signedCookies'
-  | 'req';
+  | 'req'
+  | 'status'
+  | 'redirect'
+  | 'file';

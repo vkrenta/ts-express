@@ -9,7 +9,16 @@ type resultType = {
   signedCookies?: any;
 };
 type handlerType = (result: resultType) => any;
-type middlewareType = (handler: handlerType) => RequestHandler;
+type middlewareType = (
+  handler: (result: {
+    method?: string;
+    headers?: any;
+    url?: string;
+    body?: any;
+    cookies?: any;
+    signedCookies?: any;
+  }) => any
+) => RequestHandler;
 
 const requestMiddleware: middlewareType = (handler) => (req, res, next) => {
   const { method, headers, url, body, cookies, signedCookies } = req;
