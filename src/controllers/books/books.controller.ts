@@ -1,3 +1,4 @@
+import { resolve } from 'path';
 import {
   Controller,
   Post,
@@ -9,6 +10,7 @@ import {
   Params,
   Status,
   Redirect,
+  SendFile,
 } from '../../helpers/decorators';
 import { ControllerType } from '../../helpers/types';
 
@@ -42,9 +44,14 @@ class Books extends ControllerType {
   }
 
   @Get('redirectable')
-  redirectable(@Redirect redirect: Function) {
-    redirect();
-    return 'https://google.com';
+  redirectable(@Redirect redirect: Function, @Query query: any) {
+    if (query.ok) redirect('https://google.com', 301);
+    return { message: 'nolink' };
+  }
+
+  @Get('filed')
+  getFile(@SendFile send: Function) {
+    send(resolve(process.cwd(), 'src', 'filed.html'));
   }
 }
 
