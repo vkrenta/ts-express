@@ -36,32 +36,15 @@ export type ApplicationDecoratorType = {
   after: (RequestHandler | ErrorRequestHandler)[];
 };
 
-export type listenHandler = ({
-  port,
-  error,
-}: {
-  port?: number;
-  error?: any;
-}) => any;
-
 export abstract class ApplicationType {
   public rootRouter?: Router;
   public app?: Application;
   public server?: Server;
   constructor(private port: number) {}
-  public listen(
-    handler?: ({ port, error }: { port?: number; error?: any }) => any
-  ) {
-    return new Promise((resolve, reject) => {
-      if (this.app) resolve(this.port);
-      else reject('Application must be inited');
-    })
-      .then((v) => {
-        this.server?.listen(<number>v, () => {
-          handler?.call(handler, { port: <number>v });
-        });
-      })
-      .catch((error) => handler?.call(handler, { error }));
+  public listen(callback: any) {
+    if (!this.app || !this.server)
+      throw new Error('Application must be initiated');
+    this.server?.listen(this.port, callback);
   }
 }
 
