@@ -54,6 +54,8 @@ function methodFucntion(method: Method) {
                   }
                 } else sendMethod = res.sendFile.bind(res, path);
               };
+            case 'res':
+              return res;
             default:
               return req[field];
           }
@@ -80,6 +82,10 @@ export const Post = methodFucntion('post');
 export const Put = methodFucntion('put');
 export const Patch = methodFucntion('patch');
 export const Delete = methodFucntion('delete');
+export const Head = methodFucntion('head');
+export const Connect = methodFucntion('connect');
+export const Options = methodFucntion('options');
+export const Trace = methodFucntion('trace');
 
 export function Controller(path: string = '') {
   return function (
@@ -134,3 +140,4 @@ export const Req = parametersFunction('req');
 export const Status = parametersFunction('status');
 export const Redirect = parametersFunction('redirect');
 export const SendFile = parametersFunction('file');
+export const Res = parametersFunction('res');

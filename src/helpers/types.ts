@@ -15,7 +15,16 @@ export abstract class ControllerType {
   };
 }
 
-export type Method = 'get' | 'post' | 'put' | 'patch' | 'delete';
+export type Method =
+  | 'get'
+  | 'post'
+  | 'put'
+  | 'patch'
+  | 'delete'
+  | 'head'
+  | 'connect'
+  | 'options'
+  | 'trace';
 
 export const trimSlash = (str: string) => '/' + str.replace(/^\/+|\/+$/g, '');
 
@@ -65,4 +74,5 @@ export type Field =
   | 'req'
   | 'status'
   | 'redirect'
-  | 'file';
+  | 'file'
+  | 'res';

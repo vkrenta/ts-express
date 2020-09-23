@@ -1,15 +1,11 @@
 import { RequestHandler } from 'express';
 
-type resultType = { code: number; body: any };
-type handlerType = (result: resultType) => any;
-type middlewareType = (
+const responseMiddleware: (
   handler: (result: { code: number; body: any }) => any
-) => RequestHandler;
-
-const responseMiddleware: middlewareType = (handler) => (req, res, next) => {
+) => RequestHandler = (handler) => (req, res, next) => {
   const send = res.send;
   let called = false;
-  let result: resultType = { code: 200, body: null };
+  let result: { code: number; body: any } = { code: 200, body: null };
   res.send = function (body: any) {
     if (!called) {
       result.body = body;
