@@ -40,11 +40,14 @@ export abstract class ApplicationType {
   public rootRouter?: Router;
   public app?: Application;
   public server?: Server;
-  constructor(private port: number) {}
-  public listen(callback: any) {
+  public get port() {
+    return this._port;
+  }
+  constructor(private _port: number) {}
+  public listen(callback?: any) {
     if (!this.app || !this.server)
       throw new Error('Application must be initiated');
-    this.server?.listen(this.port, callback);
+    this.server?.listen(this._port, callback);
   }
 }
 
