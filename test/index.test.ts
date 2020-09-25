@@ -1,19 +1,20 @@
-import { RedirectType, SendFileType } from './../src/helpers/types';
+import { RedirectType, SendFileType } from '../src/helpers/types';
 import {
   Get,
   InitApp,
   Redirect,
   Res,
   SendFile,
-} from './../src/helpers/decorators';
+} from '../src/helpers/decorators';
 import { ApplicationType, Controller, ControllerType } from '../src';
-import { json, Response, urlencoded } from 'express';
+import { json, Request, Response, urlencoded, RequestHandler } from 'express';
 import { resolve } from 'path';
 
 @Controller('test')
 class BookController extends ControllerType {
   @Get('simple')
   simple() {
+    // throw 'Lox';
     return { test: 'test' };
   }
 
@@ -49,7 +50,17 @@ class BookController extends ControllerType {
 @InitApp({
   before: [json(), urlencoded({ extended: true })],
   routes: { '/': [new BookController()] },
-  after: [],
+  after: [
+    (err, req, res, next) => {
+      if (err) {
+        res.status(500).send(err);
+      }
+    },
+    <RequestHandler>((req, res, next) => {
+      console.log('not found');
+      res.status(200).send('Page not found');
+    }),
+  ],
 })
 class App extends ApplicationType {}
 

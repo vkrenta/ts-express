@@ -116,10 +116,10 @@ export function InitApp({ before, routes, after }: ApplicationDecoratorType) {
         target.rootRouter?.use(trimSlash(path), controller.controllerRouter!);
       });
     });
+    target.app?.use('/', target.rootRouter!);
     after.forEach((middleware) => {
       target.app?.use(middleware);
     });
-    target.app?.use('/', target.rootRouter!);
   };
 }
 
