@@ -29,10 +29,10 @@ function methodFucntion(method: Method) {
       path = trimSlash(path);
       const router = target.methodRouters.get(functionName)!;
 
-      const handler: RequestHandler = (req, res, next) => {
+      const handler: RequestHandler = async (req, res, next) => {
         let statusCode: number = 200;
         let sendMethod: any;
-        const args = target.parametersMap?.[functionName].map((field) => {
+        const args = target.parametersMap?.[functionName]?.map((field) => {
           switch (field) {
             case 'req':
               return req;
@@ -42,7 +42,7 @@ function methodFucntion(method: Method) {
               };
             case 'redirect':
               return (url: any, code?: any) => {
-                sendMethod = res.redirect.bind(res, code ? code : 302, url);
+                sendMethod = res.redirect.bind(res, code ?? 302, url);
               };
             case 'file':
               return (path: string, options: any, fn: any) => {
@@ -55,6 +55,7 @@ function methodFucntion(method: Method) {
                 } else sendMethod = res.sendFile.bind(res, path);
               };
             case 'res':
+              sendMethod = () => {};
               return res;
             default:
               return req[field];
@@ -62,8 +63,8 @@ function methodFucntion(method: Method) {
         });
         try {
           const result = args
-            ? (<any>target)[functionName](...args)
-            : (<any>target)[functionName]();
+            ? await (<any>target)[functionName](...args)
+            : await (<any>target)[functionName]();
           res.status(statusCode);
           if (sendMethod) return sendMethod();
           res.send(result);

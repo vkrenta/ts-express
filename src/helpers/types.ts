@@ -1,5 +1,6 @@
 import {
   Application,
+  Errback,
   ErrorRequestHandler,
   RequestHandler,
   Router,
@@ -62,3 +63,15 @@ export type Field =
   | 'redirect'
   | 'file'
   | 'res';
+
+export type RedirectType = (url: any, code?: number) => any;
+export type SendFileType = (
+  path: string,
+  options?: {
+    maxAge: number;
+    root: string;
+    headers: any;
+    dotfiles: any;
+  },
+  fn?: Errback | undefined
+) => void;
